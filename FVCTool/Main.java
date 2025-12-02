@@ -30,7 +30,7 @@ public class Main {
         String line;    //Temp var for current line
 
         while ((line = br.readLine()) !=null) { //Iterate through each line of provided file
-            if (listType == true) { //Asssign to original or modified list depending on flag state
+            if (listType == false) { //Asssign to original or modified list depending on flag state
                 originalFile.add(new LineObject(false, line));
             } else {
                 modifiedFile.add(new LineObject(false, line));
@@ -58,6 +58,10 @@ public class Main {
 
         //STEP 2: Line by line comparison, add matches to finalLineMap and remove lines from ArrayLists
         LBLComparator.LBLCompare(originalFile, modifiedFile, finalLineMap);
+
+        //STEP 3: Tokenize each LineObject and store the tokenized values accordingly
+        Tokenizer.Tokenize(originalFile);
+        Tokenizer.Tokenize(modifiedFile);
 
     }
 
