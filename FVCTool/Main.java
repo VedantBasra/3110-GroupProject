@@ -49,16 +49,22 @@ public class Main {
         fileToLineObjectArrayList(originalPath, originalListType);
         fileToLineObjectArrayList(modifiedPath, modifiedListType);
 
+
+
         // STEP 2: Tokenize
         Tokenizer.Tokenize(originalFile);
         Tokenizer.Tokenize(modifiedFile);
 
-        // STEP 3: Context Hash Calculation
+
+
+        // STEP 3: Exact Match Comparison (LBLComparator)
+        LBLComparator.LBLCompare(originalFile, modifiedFile, finalLineMap);
+
+
+
+        // STEP 4: Context Hash Calculation
         ContextHashCalculator.calculateContextHashes(originalFile);
         ContextHashCalculator.calculateContextHashes(modifiedFile);
-
-        // STEP 4: Exact Match Comparison (LBLComparator)
-        LBLComparator.LBLCompare(originalFile, modifiedFile, finalLineMap);
 
         // STEP 5: Context Matching (Fuzzy Match)
         System.out.println("Running Context Matcher...");
@@ -71,6 +77,17 @@ public class Main {
             }
         }
 
+
+
+
+
+
+
+
+
+
+
+        
         // VISUALIZATION / OUTPUT
         System.out.println("\nProcessing complete.");
         System.out.println("--- Final Line Mappings (Changes Only) ---");
