@@ -57,4 +57,12 @@ public class LineObject implements Serializable {
     public void setTokenString(ArrayList<String> tokenArrayList) { //Added setting to be used by Tokenizer.java
         this.tokenString = tokenArrayList;
     }
+
+    public void setContentHash(long contentHash) {
+        this.contentHash = contentHash;
+    }
+
+    public void setContextHash(long contextHash) {
+        this.contextHash = contextHash;
+    }
 }
