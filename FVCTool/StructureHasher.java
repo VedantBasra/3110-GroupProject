@@ -1,3 +1,5 @@
+package FVCTool;
+
 import java.util.ArrayList;
 
 import com.dynatrace.hash4j.hashing.Hasher64;

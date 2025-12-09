@@ -63,6 +63,11 @@ public class Main {
         Tokenizer.Tokenize(originalFile);
         Tokenizer.Tokenize(modifiedFile);
 
+        //STEP 4: Calculate initial content, context, and structure hashes
+        for (LineObject line : originalFile) {
+            
+        }
+
     }
 
      public static void main(String[] args) throws IOException {
