@@ -11,7 +11,6 @@ public class LineObject implements Serializable {
     private boolean isMapped; 
     private String ogStr; 
     private ArrayList<String> tokenString;  //Changed to arraylist
-    private long contentHash;   //Used to store the content hash (from ogStr)
     private long contextHash;   //Used to store the context hash (from surrounding lines)
     private long structureHash; //NEW HASH; Will be used to store the hash generated from the tokenized version of each line
 
@@ -37,10 +36,6 @@ public class LineObject implements Serializable {
         return tokenString;
     }
 
-    public long getContentHash() {
-        return contentHash;
-    }
-
     public long getContextHash() {
         return contextHash;
     }
@@ -58,8 +53,8 @@ public class LineObject implements Serializable {
         this.tokenString = tokenArrayList;
     }
 
-    public void setContentHash(long contentHash) {
-        this.contentHash = contentHash;
+    public void setStructureHash(long structureHash) {
+        this.structureHash = structureHash;
     }
 
     public void setContextHash(long contextHash) {
