@@ -7,8 +7,8 @@ public class DetermineMappings {
     public static final double THRESHOLD = 0.6; //MINIMUM MATCH SIMILARITY PERCENT REQUIRED
 
     public static HashMap<Integer, Integer> map(double[][] grid,
-                                                ArrayList<LineObject> originalFile,
-                                                ArrayList<LineObject> modifiedFile) {
+        ArrayList<LineObject> originalFile,
+        ArrayList<LineObject> modifiedFile) {
 
         HashMap<Integer, Integer> finalMap = new HashMap<>();
 
