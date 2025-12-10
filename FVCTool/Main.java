@@ -75,7 +75,6 @@ public class Main {
     
 
 
-        
         // STEP 9: Mark unmatched lines in original file as deletions (-1)
         for (int i = 0; i < originalFile.size(); i++) {
             if (!finalLineMap.containsKey(i)) {
@@ -84,6 +83,8 @@ public class Main {
         }
 
         //STEP 10: Mark unmatched lines in new file as "new"
+
+
 
         //STEP 11: Display the result
 
