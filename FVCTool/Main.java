@@ -76,7 +76,8 @@ public class Main {
         }
 
         //STEP 8: Determine final mappings
-    
+        finalLineMap.putAll(DetermineMappings.map(grid, originalFile, modifiedFile));   //putAll is needed here to avoid overriding perfectly matching lines
+
 
 
         // STEP 9: Mark unmatched lines in original file as deletions (-1)
