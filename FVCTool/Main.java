@@ -67,6 +67,8 @@ public class Main {
         for (LineObject l : originalFile) {StructureHasher.computeSimHash(l.getTokenString());};
         for (LineObject l : modifiedFile) {StructureHasher.computeSimHash(l.getTokenString());};
 
+
+        
         //STEP 7: Calculate Similarity Scores
 
         //STEP 8: Determine final mappings
