@@ -68,11 +68,14 @@ public class Main {
         for (LineObject l : modifiedFile) {StructureHasher.computeSimHash(l.getTokenString());};
 
 
-        
+
         //STEP 7: Calculate Similarity Scores
 
         //STEP 8: Determine final mappings
+    
 
+
+        
         // STEP 9: Mark unmatched lines in original file as deletions (-1)
         for (int i = 0; i < originalFile.size(); i++) {
             if (!finalLineMap.containsKey(i)) {
