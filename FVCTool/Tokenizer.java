@@ -7,12 +7,6 @@ import java.util.ArrayList;
 
 public class Tokenizer {
 
-    /**
-     * ROBUST TOKENIZATION STRATEGY:
-     * 1. Reconstruct the full file content from the LineObjects.
-     * 2. Run the Scanner on the FULL content (so it handles multi-line comments correctly).
-     * 3. Map the resulting tokens back to their specific lines based on character position.
-     */
     public static void Tokenize(ArrayList<LineObject> LOList) {
         if (LOList == null || LOList.isEmpty()) return;
 
