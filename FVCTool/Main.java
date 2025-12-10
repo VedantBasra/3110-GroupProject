@@ -1,5 +1,6 @@
-package FVCTool;
+package FVCTool;    //Package import needed to call all files in package
 
+//Libs
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.io.BufferedReader;
@@ -17,7 +18,6 @@ public class Main {
     String originalPath;
     String modifiedPath;
 
-    HashMap<Integer, Integer> potentialLineMap = new HashMap<>();
     HashMap<Integer, Integer> finalLineMap = new HashMap<>();
 
     public void fileToLineObjectArrayList(String path, boolean listType) throws IOException {
@@ -61,8 +61,6 @@ public class Main {
         ContextHashCalculator.calculateContextHashes(originalFile);
         ContextHashCalculator.calculateContextHashes(modifiedFile);
 
-        //STEP 5: Content Hash Calculation
-
         //STEP 6: Structure Hash Calculation
         for (LineObject l : originalFile) {StructureHasher.computeSimHash(l.getTokenString());};
         for (LineObject l : modifiedFile) {StructureHasher.computeSimHash(l.getTokenString());};
@@ -70,6 +68,12 @@ public class Main {
 
 
         //STEP 7: Calculate Similarity Scores
+        double[][] grid = new double[originalFile.size()][modifiedFile.size()];
+        for (int i = 0; i < originalFile.size(); i++) {
+            for (int j = 0; j < modifiedFile.size(); j++) {
+                grid[i][j] = CalculateSimScore.calculateSim(originalFile.get(i), modifiedFile.get(j));
+            }
+        }
 
         //STEP 8: Determine final mappings
     
@@ -83,14 +87,14 @@ public class Main {
         }
 
         //STEP 10: Mark unmatched lines in new file as "new"
-
+        
 
 
         //STEP 11: Display the result
 
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException { //Main function; To run the program
         Main program = new Main();
         program.run(args);
     }

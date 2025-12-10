@@ -6,12 +6,12 @@ import com.dynatrace.hash4j.hashing.Hasher64;
 import com.dynatrace.hash4j.hashing.Hashing;
 
 
-public class StructureHasher {
+public class contentHashCalculator {
 
     private static final Hasher64 FEATURE_HASHER = Hashing.komihash4_3();
 
 
-    public static long computeSimHash(ArrayList<String> tokens) {
+    public static long computeHash(ArrayList<String> tokens) {
         if (tokens == null || tokens.isEmpty()) {
             // Return 0L for an empty or null input list.
             return 0L;
@@ -38,14 +38,14 @@ public class StructureHasher {
         }
         
         // Convert the final vector to a 64-bit hash
-        long simHash = 0L;
+        long hash = 0L;
         for (int i = 0; i < 64; i++) {
             if (vector[i] > 0) {
-                simHash |= (1L << i);  // Set bit to 1 if vector element is positive
+                hash |= (1L << i);  // Set bit to 1 if vector element is positive
             }
         }
         
-        return simHash;
+        return hash;
     }
     
 
