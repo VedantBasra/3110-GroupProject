@@ -87,11 +87,12 @@ public class Main {
             }
         }
 
-        //STEP 10: Mark unmatched lines in new file as "new"
-        MarkNewLines.markNewLines(finalLineMap, modifiedFile);
+        // //STEP 10: Mark unmatched lines in new file as "new"
+        // MarkNewLines.markNewLines(finalLineMap, modifiedFile);
 
 
         //STEP 11: Display the result
+        ResultDisplay.printResults(originalFile, modifiedFile, finalLineMap);
 
     }
 

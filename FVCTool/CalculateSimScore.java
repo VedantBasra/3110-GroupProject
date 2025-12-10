@@ -19,6 +19,10 @@ public class CalculateSimScore {
     public static double calculateSim (LineObject original, LineObject modified) {
         double longerLineLen = Math.max(original.getOgStr().length(),modified.getOgStr().length()); //Find and store which of the 2 lines are longer for content to use
 
+        if (longerLineLen == 0) {
+            return 1.0; 
+        }
+
         //Use hamming distance for both context and structure hash (structure hash is functionally just a context hash on a current line in token form)
         double contextSimilarity = 1 - (calculateHammingDistance(original.getContextHash(), modified.getContextHash()) / (double) 64);
         double structureSimilarity = 1 - (calculateHammingDistance(original.getStructureHash(), modified.getStructureHash()) / (double) 64);

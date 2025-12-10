@@ -1,6 +1,5 @@
 package FVCTool;
 
-//IMPORTS FOR JDT Eclipse Java tokenizer
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
@@ -8,46 +7,78 @@ import java.util.ArrayList;
 
 public class Tokenizer {
 
+    /**
+     * ROBUST TOKENIZATION STRATEGY:
+     * 1. Reconstruct the full file content from the LineObjects.
+     * 2. Run the Scanner on the FULL content (so it handles multi-line comments correctly).
+     * 3. Map the resulting tokens back to their specific lines based on character position.
+     */
     public static void Tokenize(ArrayList<LineObject> LOList) {
+        if (LOList == null || LOList.isEmpty()) return;
 
-        for (LineObject line : LOList) {    //Iterate through each element in the list of LineObjects
+        // Step 1: Rebuild the source code and map line boundaries
+        StringBuilder fullSource = new StringBuilder();
+        long[] lineEndPositions = new long[LOList.size()];
+        
+        // We track where each line ends in the massive source string
+        long currentCount = 0;
+        for (int i = 0; i < LOList.size(); i++) {
+            String lineStr = LOList.get(i).getOgStr();
+            fullSource.append(lineStr).append('\n'); // Append newline to mimic file structure
+            
+            currentCount += lineStr.length() + 1; // +1 for the newline we just added
+            lineEndPositions[i] = currentCount;
+            
+            // Initialize the token list for every line to avoid NullPointer later
+            LOList.get(i).setTokenString(new ArrayList<>());
+        }
 
-            Scanner s = new Scanner();  //Initialize the tokenizer
-            s.setSource(line.getOgStr().toCharArray()); //Convert string input to char array to meet tokenizer expected format
+        // Step 2: Configure the JDT Scanner
+        Scanner s = new Scanner();
+        s.setSource(fullSource.toString().toCharArray());
+        // Note: Default Scanner constructor skips comments, which is exactly what we want for code diffing.
+        // It will parse the /* ... */ block as a comment and silently skip it without crashing.
 
-            ArrayList<String> tempTokens = new ArrayList<>();   //Temporary array list for holding tokens while they are being generated
+        // Step 3: Iterate tokens and assign to lines
+        try {
+            int tokenType;
+            int currentLineIndex = 0;
 
-            try {
-                int t;
-                while ((t = s.getNextToken()) != TerminalTokens.TokenNameEOF) {
-                    tempTokens.add(categorize(t));
+            while ((tokenType = s.getNextToken()) != TerminalTokens.TokenNameEOF) {
+                
+                int tokenStartPos = s.getCurrentTokenStartPosition();
+
+                // Advance the line index if the token is beyond the current line's end
+                while (currentLineIndex < lineEndPositions.length && 
+                       tokenStartPos >= lineEndPositions[currentLineIndex]) {
+                    currentLineIndex++;
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
 
-            line.setTokenString(tempTokens);    //Set the token string in the line object to the final tokenized version
+                // Safety check
+                if (currentLineIndex < LOList.size()) {
+                    String category = categorize(tokenType);
+                    LOList.get(currentLineIndex).getTokenString().add(category);
+                }
+            }
+        } catch (Exception e) {
+            // This catch is now a true safety net. 
+            // The "Unterminated_Comment" error will NOT happen here because the full file context is provided.
+            System.err.println("Tokenization Warning: " + e.getMessage());
         }
     }
 
-    private static String categorize(int token) {   //Convert the tokens into generallized catagories 
-
+    private static String categorize(int token) {
         switch (token) {
-
-            //VAR
             case TerminalTokens.TokenNameIdentifier:
                 return "IDENTIFIER";
 
-            //Int and float
             case TerminalTokens.TokenNameIntegerLiteral:
             case TerminalTokens.TokenNameFloatingPointLiteral:
                 return "NUMBER";
 
-            //Strings
             case TerminalTokens.TokenNameStringLiteral:
                 return "STRING_LITERAL";
 
-            //Data types
             case TerminalTokens.TokenNameint:
             case TerminalTokens.TokenNamefloat:
             case TerminalTokens.TokenNamedouble:
@@ -57,7 +88,6 @@ public class Tokenizer {
             case TerminalTokens.TokenNamechar:
                 return "TYPE";
 
-            //Flow control
             case TerminalTokens.TokenNameif:
             case TerminalTokens.TokenNameelse:
             case TerminalTokens.TokenNamefor:
@@ -65,7 +95,6 @@ public class Tokenizer {
             case TerminalTokens.TokenNamereturn:
                 return "CONTROL";
 
-            //Operators
             case TerminalTokens.TokenNamePLUS:
             case TerminalTokens.TokenNameMINUS:
             case TerminalTokens.TokenNameMULTIPLY:
@@ -82,34 +111,27 @@ public class Tokenizer {
             case TerminalTokens.TokenNameMINUS_MINUS:
                 return "OPERATOR";
 
-            //Equality
             case TerminalTokens.TokenNameEQUAL:
                 return "ASSIGN";
 
-            //Normal brackets
             case TerminalTokens.TokenNameLPAREN:
             case TerminalTokens.TokenNameRPAREN:
                 return "PAREN";
 
-            //Square brackets
             case TerminalTokens.TokenNameLBRACKET:
             case TerminalTokens.TokenNameRBRACKET:
                 return "BRACKET";
 
-            //Curly braces
             case TerminalTokens.TokenNameLBRACE:
             case TerminalTokens.TokenNameRBRACE:
                 return "CURLY";
 
-            //COMMA
             case TerminalTokens.TokenNameCOMMA:
                 return "COMMA";
 
-            //;
             case TerminalTokens.TokenNameSEMICOLON:
                 return "SEMICOLON";
 
-            //Catch all for potentially missed catagories (rare operators, etc.)
             default:
                 return "OTHER";
         }
