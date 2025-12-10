@@ -63,9 +63,6 @@ public class Main {
 
 
         // STEP 4: Context Hash Calculation
-        ContentHashCalculator.calculateContentHashes(originalFile);
-        ContentHashCalculator.calculateContentHashes(modifiedFile); 
-
         ContextHashCalculator.calculateContextHashes(originalFile);
         ContextHashCalculator.calculateContextHashes(modifiedFile);
 
