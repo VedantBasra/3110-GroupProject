@@ -58,12 +58,12 @@ public class Main {
 
 
         //STEP 4: Context Hash Calculation
-        ContextHashCalculator.calculateContextHashes(originalFile);
-        ContextHashCalculator.calculateContextHashes(modifiedFile);
+        hashCalculator.computeContextHash(originalFile);
+        hashCalculator.computeContextHash(modifiedFile);
 
         //STEP 6: Structure Hash Calculation
-        for (LineObject l : originalFile) {StructureHasher.computeSimHash(l.getTokenString());};
-        for (LineObject l : modifiedFile) {StructureHasher.computeSimHash(l.getTokenString());};
+        hashCalculator.computeStructureHash(originalFile);
+        hashCalculator.computeStructureHash(modifiedFile);
 
 
 
