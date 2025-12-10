@@ -11,7 +11,7 @@ public class StructureHasher {
     private static final Hasher64 FEATURE_HASHER = Hashing.komihash4_3();
 
 
-    public long computeSimHash(ArrayList<String> tokens) {
+    public static long computeSimHash(ArrayList<String> tokens) {
         if (tokens == null || tokens.isEmpty()) {
             // Return 0L for an empty or null input list.
             return 0L;
