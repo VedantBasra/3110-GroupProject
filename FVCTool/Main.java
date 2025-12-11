@@ -1,6 +1,5 @@
-package FVCTool;    //Package import needed to call all files in package
+package FVCTool;    
 
-//Libs
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.io.BufferedReader;
@@ -17,6 +16,9 @@ public class Main {
 
     String originalPath;
     String modifiedPath;
+    
+    // NEW: Variable to store bug fix status
+    boolean isBugFix = false; 
 
     HashMap<Integer, Integer> finalLineMap = new HashMap<>();
 
@@ -35,13 +37,23 @@ public class Main {
     }
 
     public void run(String[] args) throws IOException {
-        if (args.length != 2) {
-            System.err.println("ERROR: Please provide the original and modified files as command line arguments.");
+        // UPDATED: Argument handling to support optional Commit Message
+        if (args.length < 2 || args.length > 3) {
+            System.err.println("ERROR: Usage: java FVCTool.Main <OriginalFile> <ModifiedFile> [\"Commit Message\"]");
             return;
         }
 
         originalPath = args[0];
         modifiedPath = args[1];
+        
+        // NEW: Check for commit message
+        if (args.length == 3) {
+            String commitMsg = args[2];
+            // Ensure you have created CommitAnalyzer.java as discussed!
+            isBugFix = CommitAnalyzer.isBugFix(commitMsg);
+            System.out.println("Commit Message: \"" + commitMsg + "\"");
+            System.out.println("Bug Fix Detected: " + isBugFix);
+        }
 
         System.out.println("Processing files: " + originalPath + " and " + modifiedPath);
 
@@ -56,7 +68,6 @@ public class Main {
         Tokenizer.Tokenize(originalFile);
         Tokenizer.Tokenize(modifiedFile);
 
-
         //STEP 4: Context Hash Calculation
         HashCalculator.computeContextHash(originalFile);
         HashCalculator.computeContextHash(modifiedFile);
@@ -64,8 +75,6 @@ public class Main {
         //STEP 6: Structure Hash Calculation
         HashCalculator.computeStructureHash(originalFile);
         HashCalculator.computeStructureHash(modifiedFile);
-
-
 
         //STEP 7: Calculate Similarity Scores
         double[][] grid = new double[originalFile.size()][modifiedFile.size()];
@@ -76,9 +85,7 @@ public class Main {
         }
 
         //STEP 8: Determine final mappings
-        finalLineMap.putAll(DetermineMappings.map(grid, originalFile, modifiedFile));   //putAll is needed here to avoid overriding perfectly matching lines
-
-
+        finalLineMap.putAll(DetermineMappings.map(grid, originalFile, modifiedFile));
 
         // STEP 9: Mark unmatched lines in original file as deletions (-1)
         for (int i = 0; i < originalFile.size(); i++) {
@@ -87,16 +94,14 @@ public class Main {
             }
         }
 
-        // //STEP 10: Mark unmatched lines in new file as "new"
+        // STEP 10: (Disabled as discussed to use ResultDisplay logic instead)
         // MarkNewLines.markNewLines(finalLineMap, modifiedFile);
 
-
-        //STEP 11: Display the result
-        ResultDisplay.printResults(originalFile, modifiedFile, finalLineMap);
-
+        // STEP 11: Display the result (Now includes isBugFix)
+        ResultDisplay.printResults(originalFile, modifiedFile, finalLineMap, isBugFix, originalPath); 
     }
 
-    public static void main(String[] args) throws IOException { //Main function; To run the program
+    public static void main(String[] args) throws IOException { 
         Main program = new Main();
         program.run(args);
     }
