@@ -7,62 +7,72 @@ import java.util.Set;
 
 public class ResultDisplay {
 
+    // UPDATED SIGNATURE: Added 'String originalPath'
     public static void printResults(ArrayList<LineObject> originalFile, 
                                     ArrayList<LineObject> modifiedFile, 
-                                    HashMap<Integer, Integer> finalLineMap) {
+                                    HashMap<Integer, Integer> finalLineMap,
+                                    boolean isBugFix,
+                                    String originalPath) { // <--- NEW ARGUMENT
 
-        System.out.println("\n==========================================================================================");
-        System.out.printf("%-8s | %-8s | %-10s | %-6s | %s%n", "ORIG", "NEW", "STATUS", "SIM", "CONTENT (Truncated)");
-        System.out.println("------------------------------------------------------------------------------------------");
+        System.out.println("\n========================================================================================================================");
+        // Header now includes "BUG ORIGIN" column
+        System.out.printf("%-6s | %-6s | %-8s | %-6s | %-25s | %s%n", "ORIG", "NEW", "STATUS", "SIM", "BUG ORIGIN (SZZ)", "CONTENT (Truncated)");
+        System.out.println("------------------------------------------------------------------------------------------------------------------------");
 
-        // 1. ITERATE THROUGH ORIGINAL FILE (Handles Matches, Changes, Moves, Deletes)
         for (int i = 0; i < originalFile.size(); i++) {
             LineObject origLine = originalFile.get(i);
-            
-            // Check if this original line has a valid mapping to a modified line
+            String bugOrigin = ""; 
+
+            // LOGIC: If this is a Bug Fix, check DELETIONS and CHANGES for the source
+            boolean isCandidateForBlame = false;
+
             if (finalLineMap.containsKey(i) && finalLineMap.get(i) >= 0) {
+                // MAPPED LINES
                 int modIndex = finalLineMap.get(i);
                 LineObject modLine = modifiedFile.get(modIndex);
                 
                 String status = "MATCH";
                 if (!origLine.getOgStr().equals(modLine.getOgStr())) {
                     status = "CHANGE";
+                    if (isBugFix) isCandidateForBlame = true;
                 } else if (i != modIndex) {
                     status = "MOVE";
                 }
                 
                 double sim = CalculateSimScore.calculateSim(origLine, modLine);
-                if (Double.isNaN(sim)) sim = 1.0; // Handle empty lines safely
+                if (Double.isNaN(sim)) sim = 1.0;
 
-                printRow((i + 1), String.valueOf(modIndex + 1), status, String.format("%.0f%%", sim * 100), origLine.getOgStr());
+                // If candidate, run SZZ (Git Blame)
+                if (isCandidateForBlame) {
+                    bugOrigin = GitBlamer.getBlame(originalPath, i + 1);
+                }
+
+                printRow((i + 1), String.valueOf(modIndex + 1), status, String.format("%.0f%%", sim * 100), bugOrigin, origLine.getOgStr());
+
             } else {
-                // If map contains -1 or no mapping, it's a Deletion
-                printRow((i + 1), "---", "DELETE", "---", origLine.getOgStr());
+                // DELETED LINES
+                if (isBugFix) {
+                    bugOrigin = GitBlamer.getBlame(originalPath, i + 1);
+                }
+                printRow((i + 1), "---", "DELETE", "---", bugOrigin, origLine.getOgStr());
             }
         }
 
-        // 2. ITERATE THROUGH MODIFIED FILE (Handles New Lines/Additions)
-        // Any line in Modified File that was NOT used as a target in the map is "NEW"
+        // NEW LINES (Skip blame, as they are new)
         Set<Integer> mappedTargets = new HashSet<>(finalLineMap.values());
-        
         for (int j = 0; j < modifiedFile.size(); j++) {
             if (!mappedTargets.contains(j)) {
-                 printRow(-1, String.valueOf(j + 1), "NEW", "---", modifiedFile.get(j).getOgStr());
+                 printRow(-1, String.valueOf(j + 1), "NEW", "---", "", modifiedFile.get(j).getOgStr());
             }
         }
-        System.out.println("==========================================================================================\n");
+        System.out.println("========================================================================================================================\n");
     }
 
-    // Helper to format the table rows cleanly
-    private static void printRow(int orig, String newLn, String status, String sim, String content) {
+    private static void printRow(int orig, String newLn, String status, String sim, String blame, String content) {
         String origStr = (orig == -1) ? "---" : String.valueOf(orig);
+        if (content.length() > 40) content = content.substring(0, 37) + "...";
         
-        // Truncate long code lines to keep the table pretty
-        if (content.length() > 50) {
-            content = content.substring(0, 47) + "...";
-        }
-        
-        System.out.printf("%-8s | %-8s | %-10s | %-6s | %s%n", 
-            origStr, newLn, status, sim, content.trim());
+        System.out.printf("%-6s | %-6s | %-8s | %-6s | %-25s | %s%n", 
+            origStr, newLn, status, sim, blame, content.trim());
     }
 }
